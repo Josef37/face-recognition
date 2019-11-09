@@ -8,11 +8,6 @@ import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
 import Particles from "react-particles-js";
-import Clarifai from "clarifai";
-
-const app = new Clarifai.App({
-  apiKey: "f808c18957744e638fa78d51df1fc727"
-});
 
 const particlesOptions = {
   particles: {
@@ -26,17 +21,39 @@ const particlesOptions = {
   }
 };
 
+const initialState = {
+  input: "",
+  imageUrl: "",
+  boxes: [],
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: ""
+  }
+};
+
 class App extends React.Component {
   constructor() {
     super();
-    this.state = {
-      input: "",
-      imageUrl: "",
-      boxes: [],
-      route: "signin",
-      isSignedIn: false
-    };
+    this.state = initialState;
   }
+
+  loadUser = data => {
+    let { id, name, email, entries, joined } = data;
+    this.setState({
+      user: {
+        id,
+        name,
+        email,
+        entries,
+        joined
+      }
+    });
+  };
 
   calculateFaceLocations = data => {
     const clarifaiFaces = data.outputs[0].data.regions.map(
@@ -64,16 +81,35 @@ class App extends React.Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+    fetch("http://localhost:3000/imageurl", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ input: this.state.input })
+    })
+      .then(response => response.json())
       .then(this.calculateFaceLocations)
       .then(this.displayFaceBoxes)
+      .then(() => {
+        fetch("http://localhost:3000/image", {
+          method: "put",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: this.state.user.id })
+        })
+          .then(response => response.json())
+          .then(count =>
+            this.setState({
+              user: Object.assign(this.state.user, { entries: count })
+            })
+          )
+          .then(() => console.log(this.state))
+          .catch(console.log);
+      })
       .catch(err => console.log(err));
   };
 
   onRouteChange = route => {
     if (route === "signin") {
-      this.setState({ isSignedIn: false });
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     }
@@ -81,6 +117,7 @@ class App extends React.Component {
   };
 
   render() {
+    const { name, entries } = this.state.user;
     return (
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
@@ -91,7 +128,7 @@ class App extends React.Component {
         {this.state.route === "home" ? (
           <React.Fragment>
             <Logo />
-            <Rank />
+            <Rank name={name} entries={entries} />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
@@ -102,9 +139,12 @@ class App extends React.Component {
             />
           </React.Fragment>
         ) : this.state.route === "signin" ? (
-          <Signin onRouteChange={this.onRouteChange} />
+          <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <Register
+            onRouteChange={this.onRouteChange}
+            loadUser={this.loadUser}
+          />
         )}
       </div>
     );
