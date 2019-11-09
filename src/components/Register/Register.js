@@ -1,4 +1,5 @@
 import React from "react";
+import { BACKEND_URL } from "../../App";
 
 class Register extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class Register extends React.Component {
   };
 
   onSubmitSignIn = () => {
-    fetch(process.env.BACKEND_URL + "/register", {
+    fetch(BACKEND_URL + "/register", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

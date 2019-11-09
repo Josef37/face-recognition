@@ -9,6 +9,8 @@ import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
 import Particles from "react-particles-js";
 
+export const BACKEND_URL = "https://pacific-springs-45597.herokuapp.com";
+
 const particlesOptions = {
   particles: {
     number: {
@@ -81,7 +83,7 @@ class App extends React.Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    fetch(process.env.BACKEND_URL + "/imageurl", {
+    fetch(BACKEND_URL + "/imageurl", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ input: this.state.input })
@@ -90,7 +92,7 @@ class App extends React.Component {
       .then(this.calculateFaceLocations)
       .then(this.displayFaceBoxes)
       .then(() => {
-        fetch(process.env.BACKEND_URL + "/image", {
+        fetch(BACKEND_URL + "/image", {
           method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: this.state.user.id })
