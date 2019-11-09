@@ -81,7 +81,7 @@ class App extends React.Component {
 
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
-    fetch("http://localhost:3000/imageurl", {
+    fetch(process.env.BACKEND_URL + "/imageurl", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ input: this.state.input })
@@ -90,7 +90,7 @@ class App extends React.Component {
       .then(this.calculateFaceLocations)
       .then(this.displayFaceBoxes)
       .then(() => {
-        fetch("http://localhost:3000/image", {
+        fetch(process.env.BACKEND_URL + "/image", {
           method: "put",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: this.state.user.id })
