@@ -1,4 +1,6 @@
 import React from "react";
+import { connect } from "react-redux";
+import { setImageUrl, submitImage, changeRoute } from "./actions";
 import "./App.css";
 import Navigation from "./components/Navigation/Navigation";
 import Logo from "./components/Logo/Logo";
@@ -8,8 +10,6 @@ import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
 import Particles from "react-particles-js";
-
-export const BACKEND_URL = "https://pacific-springs-45597.herokuapp.com";
 
 const particlesOptions = {
   particles: {
@@ -23,134 +23,47 @@ const particlesOptions = {
   }
 };
 
-const initialState = {
-  input: "",
-  imageUrl: "",
-  boxes: [],
-  route: "signin",
-  isSignedIn: false,
-  user: {
-    id: "",
-    name: "",
-    email: "",
-    entries: 0,
-    joined: ""
-  }
-};
-
 class App extends React.Component {
-  constructor() {
-    super();
-    this.state = initialState;
-  }
-
-  loadUser = data => {
-    let { id, name, email, entries, joined } = data;
-    this.setState({
-      user: {
-        id,
-        name,
-        email,
-        entries,
-        joined
-      }
-    });
-  };
-
-  calculateFaceLocations = data => {
-    const clarifaiFaces = data.outputs[0].data.regions.map(
-      region => region.region_info.bounding_box
-    );
-    const image = document.getElementById("inputImage");
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return clarifaiFaces.map(face => ({
-      leftCol: face.left_col * width,
-      topRow: face.top_row * height,
-      rightCol: width - face.right_col * width,
-      bottomRow: height - face.bottom_row * height
-    }));
-  };
-
-  displayFaceBoxes = boxes => {
-    console.log(boxes);
-    this.setState({ boxes });
-  };
-
-  onInputChange = event => {
-    this.setState({ input: event.target.value });
-  };
-
-  onButtonSubmit = () => {
-    this.setState({ imageUrl: this.state.input });
-    fetch(BACKEND_URL + "/imageurl", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input: this.state.input })
-    })
-      .then(response => response.json())
-      .then(this.calculateFaceLocations)
-      .then(this.displayFaceBoxes)
-      .then(() => {
-        fetch(BACKEND_URL + "/image", {
-          method: "put",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: this.state.user.id })
-        })
-          .then(response => response.json())
-          .then(count =>
-            this.setState({
-              user: Object.assign(this.state.user, { entries: count })
-            })
-          )
-          .then(() => console.log(this.state))
-          .catch(console.log);
-      })
-      .catch(err => console.log(err));
-  };
-
-  onRouteChange = route => {
-    if (route === "signin") {
-      this.setState(initialState);
-    } else if (route === "home") {
-      this.setState({ isSignedIn: true });
-    }
-    this.setState({ route: route });
-  };
-
   render() {
-    const { name, entries } = this.state.user;
+    const {
+      route,
+      isSignedIn,
+      boxes,
+      imageUrl,
+      user,
+      onInputChange,
+      onButtonSubmit,
+      onRouteChange
+    } = this.props;
     return (
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
-        <Navigation
-          isSignedIn={this.state.isSignedIn}
-          onRouteChange={this.onRouteChange}
-        />
-        {this.state.route === "home" ? (
+        <Navigation isSignedIn={isSignedIn} onRouteChange={onRouteChange} />
+        {route === "home" ? (
           <React.Fragment>
             <Logo />
-            <Rank name={name} entries={entries} />
+            <Rank name={user.name} entries={user.entries} />
             <ImageLinkForm
-              onInputChange={this.onInputChange}
-              onButtonSubmit={this.onButtonSubmit}
+              onInputChange={onInputChange}
+              onButtonSubmit={onButtonSubmit}
             />
-            <FaceRecognition
-              boxes={this.state.boxes}
-              imageUrl={this.state.imageUrl}
-            />
+            <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
           </React.Fragment>
-        ) : this.state.route === "signin" ? (
-          <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+        ) : route === "signin" ? (
+          <Signin />
         ) : (
-          <Register
-            onRouteChange={this.onRouteChange}
-            loadUser={this.loadUser}
-          />
+          <Register />
         )}
       </div>
     );
   }
 }
 
-export default App;
+export default connect(
+  state => state.app,
+  dispatch => ({
+    onInputChange: event => dispatch(setImageUrl(event.target.value)),
+    onButtonSubmit: () => dispatch(submitImage()),
+    onRouteChange: route => dispatch(changeRoute(route))
+  })
+)(App);
