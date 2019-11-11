@@ -15,7 +15,7 @@ import {
   SUBMIT_IMAGE_SUCCESS,
   SUBMIT_IMAGE_FAILED,
   SET_IMAGE_COUNT,
-  CHANGE_ROUTE
+  SUBMIT_SIGNOUT
 } from "./constants";
 
 const initialStateSignin = {
@@ -73,7 +73,6 @@ const initialStateApp = {
   input: "",
   imageUrl: "",
   boxes: [],
-  route: "signin",
   isSignedIn: false,
   user: {
     id: "",
@@ -91,9 +90,10 @@ export const app = (state = initialStateApp, action = {}) => {
       return {
         ...state,
         isSignedIn: true,
-        route: "home",
         user: action.payload
       };
+    case SUBMIT_SIGNOUT:
+      return initialStateApp;
     case SET_IMAGE_URL:
       return { ...state, input: action.payload };
     case SUBMIT_IMAGE_PENDING:
@@ -109,10 +109,6 @@ export const app = (state = initialStateApp, action = {}) => {
       return { ...state, isPending: false, isFailed: true };
     case SET_IMAGE_COUNT:
       return { ...state, user: { ...state.user, entries: action.payload } };
-    case CHANGE_ROUTE:
-      const route = action.payload;
-      if (route === "signin") return initialStateApp;
-      return { ...state, route };
     default:
       return state;
   }

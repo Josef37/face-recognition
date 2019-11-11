@@ -16,7 +16,7 @@ import {
   SUBMIT_IMAGE_SUCCESS,
   SUBMIT_IMAGE_FAILED,
   SET_IMAGE_COUNT,
-  CHANGE_ROUTE
+  SUBMIT_SIGNOUT
 } from "./constants";
 
 export const setSigninEmail = email => ({
@@ -29,7 +29,7 @@ export const setSigninPassword = password => ({
   payload: password
 });
 
-export const submitSignin = () => (dispatch, getState) => {
+export const submitSignin = history => (dispatch, getState) => {
   const { signInEmail, signInPassword } = getState().signin;
   dispatch({ type: SUBMIT_SIGNIN_PENDING });
   fetch(BACKEND_URL + "/signin", {
@@ -46,7 +46,8 @@ export const submitSignin = () => (dispatch, getState) => {
       else return response.json();
     })
     .then(user => {
-      dispatch({ type: SUBMIT_SIGNIN_SUCCESS, payload: user });
+      dispatch({ type: SUBMIT_SIGNIN_SUCCESS, payload: user, history });
+      history.push("/home");
     })
     .catch(err => {
       dispatch({ type: SUBMIT_SIGNIN_FAILED, payload: err });
@@ -68,7 +69,7 @@ export const setRegisterName = name => ({
   payload: name
 });
 
-export const submitRegister = () => (dispatch, getState) => {
+export const submitRegister = history => (dispatch, getState) => {
   const { name, email, password } = getState().register;
   dispatch({ type: SUBMIT_REGISTER_PENDING });
   fetch(BACKEND_URL + "/register", {
@@ -87,11 +88,16 @@ export const submitRegister = () => (dispatch, getState) => {
     })
     .then(user => {
       dispatch({ type: SUBMIT_REGISTER_SUCCESS, payload: user });
+      history.push("/home");
     })
     .catch(err => {
       dispatch({ type: SUBMIT_REGISTER_FAILED, payload: err });
     });
 };
+
+export const submitSignout = () => ({
+  type: SUBMIT_SIGNOUT
+});
 
 export const setImageUrl = url => ({
   type: SET_IMAGE_URL,
@@ -140,8 +146,3 @@ const calculateFaceLocations = data => {
     bottomRow: height - face.bottom_row * height
   }));
 };
-
-export const changeRoute = route => ({
-  type: CHANGE_ROUTE,
-  payload: route
-});
