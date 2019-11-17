@@ -73,6 +73,7 @@ class App extends React.Component {
             <Route path="/register">
               <Register />
             </Route>
+            <Redirect to="/home" />
           </Switch>
         </div>
       </Router>
