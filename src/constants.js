@@ -1,5 +1,3 @@
-export const BACKEND_URL = "https://pacific-springs-45597.herokuapp.com";
-
 export const SET_SIGNIN_EMAIL = "SET_SIGNIN_EMAIL";
 export const SET_SIGNIN_PASSWORD = "SET_SIGNIN_PASSWORD";
 export const SUBMIT_SIGNIN_PENDING = "SUBMIT_SIGNIN_PENDING";

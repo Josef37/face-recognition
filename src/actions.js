@@ -1,5 +1,4 @@
 import {
-  BACKEND_URL,
   SET_SIGNIN_EMAIL,
   SET_SIGNIN_PASSWORD,
   SUBMIT_SIGNIN_PENDING,
@@ -18,6 +17,8 @@ import {
   SET_IMAGE_COUNT,
   SUBMIT_SIGNOUT
 } from "./constants";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
 export const setSigninEmail = email => ({
   type: SET_SIGNIN_EMAIL,
