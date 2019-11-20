@@ -86,8 +86,6 @@ export default connect(
   dispatch => ({
     onInputChange: event => dispatch(setImageUrl(event.target.value)),
     onButtonSubmit: () => dispatch(submitImage()),
-    onSubmitSignout: history => {
-      dispatch(submitSignout(history));
-    }
+    onSubmitSignout: () => dispatch(submitSignout())
   })
 )(App);
