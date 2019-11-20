@@ -15,10 +15,11 @@ import {
   SUBMIT_IMAGE_SUCCESS,
   SUBMIT_IMAGE_FAILED,
   SET_IMAGE_COUNT,
-  SUBMIT_SIGNOUT
+  SUBMIT_SIGNOUT,
+  TOGGLE_PROFILE_MODAL
 } from "./constants";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const setSigninEmail = email => ({
   type: SET_SIGNIN_EMAIL,
@@ -147,3 +148,5 @@ const calculateFaceLocations = data => {
     bottomRow: height - face.bottom_row * height
   }));
 };
+
+export const toggleProfileModal = () => ({ type: TOGGLE_PROFILE_MODAL });

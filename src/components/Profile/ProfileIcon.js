@@ -43,8 +43,8 @@ class ProfileIcon extends Component {
             left: "auto"
           }}
         >
-          <DropdownItem>
-            <Link>View Profile</Link>
+          <DropdownItem onClick={() => this.props.toggleModal()}>
+            View Profile
           </DropdownItem>
           <DropdownItem>
             <Link to="/signin" onClick={() => this.props.onSubmitSignout()}>

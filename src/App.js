@@ -1,6 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
-import { setImageUrl, submitImage, submitSignout } from "./actions";
+import {
+  setImageUrl,
+  submitImage,
+  submitSignout,
+  toggleProfileModal
+} from "./actions";
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,6 +20,8 @@ import Rank from "./components/Rank/Rank";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
+import Modal from "./components/Modal/Modal";
+import Profile from "./components/Profile/Profile";
 import Particles from "react-particles-js";
 
 const particlesOptions = {
@@ -35,10 +42,12 @@ class App extends React.Component {
       isSignedIn,
       boxes,
       imageUrl,
+      isProfileOpen,
       user,
       onInputChange,
       onButtonSubmit,
-      onSubmitSignout
+      onSubmitSignout,
+      toggleProfileModal
     } = this.props;
     return (
       <Router>
@@ -47,6 +56,7 @@ class App extends React.Component {
           <Navigation
             isSignedIn={isSignedIn}
             onSubmitSignout={onSubmitSignout}
+            toggleModal={toggleProfileModal}
           />
           <Switch>
             <Route
@@ -56,6 +66,11 @@ class App extends React.Component {
                   <Redirect to="/signin" />
                 ) : (
                   <React.Fragment>
+                    {isProfileOpen && (
+                      <Modal>
+                        <Profile toggleModal={toggleProfileModal} />
+                      </Modal>
+                    )}
                     <Logo />
                     <Rank name={user.name} entries={user.entries} />
                     <ImageLinkForm
@@ -86,6 +101,7 @@ export default connect(
   dispatch => ({
     onInputChange: event => dispatch(setImageUrl(event.target.value)),
     onButtonSubmit: () => dispatch(submitImage()),
-    onSubmitSignout: () => dispatch(submitSignout())
+    onSubmitSignout: () => dispatch(submitSignout()),
+    toggleProfileModal: () => dispatch(toggleProfileModal())
   })
 )(App);

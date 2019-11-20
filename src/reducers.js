@@ -15,7 +15,8 @@ import {
   SUBMIT_IMAGE_SUCCESS,
   SUBMIT_IMAGE_FAILED,
   SET_IMAGE_COUNT,
-  SUBMIT_SIGNOUT
+  SUBMIT_SIGNOUT,
+  TOGGLE_PROFILE_MODAL
 } from "./constants";
 
 const initialStateSignin = {
@@ -74,6 +75,7 @@ const initialStateApp = {
   imageUrl: "",
   boxes: [],
   isSignedIn: false,
+  isProfileOpen: false,
   user: {
     id: "",
     name: "",
@@ -109,6 +111,8 @@ export const app = (state = initialStateApp, action = {}) => {
       return { ...state, isPending: false, isFailed: true };
     case SET_IMAGE_COUNT:
       return { ...state, user: { ...state.user, entries: action.payload } };
+    case TOGGLE_PROFILE_MODAL:
+      return { ...state, isProfileOpen: !state.isProfileOpen };
     default:
       return state;
   }
