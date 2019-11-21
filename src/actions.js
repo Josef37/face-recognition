@@ -34,6 +34,8 @@ import {
   AUTHORIZE_TOKEN_FAILED
 } from "./constants";
 
+import { catchByStatus, parseJson } from "./helper/fetchHelper";
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const setSigninEmail = email => ({
@@ -57,11 +59,8 @@ export const submitSignin = history => (dispatch, getState) => {
       password: signInPassword
     })
   })
-    .then(response => {
-      if (!String(response.status).startsWith("2"))
-        throw new Error("wrong credentials");
-      return response.json();
-    })
+    .then(catchByStatus("wrong credentials"))
+    .then(parseJson)
     .then(({ id, token }) => {
       window.sessionStorage.setItem("token", token);
       dispatch({ type: SUBMIT_SIGNIN_SUCCESS, payload: id });
@@ -100,11 +99,8 @@ export const submitRegister = history => (dispatch, getState) => {
       password
     })
   })
-    .then(response => {
-      if (!String(response.status).startsWith("2"))
-        throw new Error("unable to register");
-      return response.json();
-    })
+    .then(catchByStatus("unable to register"))
+    .then(parseJson)
     .then(({ id, token }) => {
       window.sessionStorage.setItem("token", token);
       dispatch({ type: SUBMIT_REGISTER_SUCCESS, payload: id });
@@ -127,10 +123,8 @@ export const submitSignout = () => dispatch => {
     method: "post",
     headers: { Authorization: token }
   })
-    .then(response => {
-      if (!String(response.status).startsWith("2"))
-        throw new Error("error signing out");
-
+    .then(catchByStatus("error signing out"))
+    .then(() => {
       window.sessionStorage.removeItem("token");
       dispatch({ type: SUBMIT_SIGNOUT_SUCCESS });
     })
@@ -153,11 +147,8 @@ export const submitImage = () => (dispatch, getState) => {
     },
     body: JSON.stringify({ input: imageUrl })
   })
-    .then(response => {
-      if (!String(response.status).startsWith("2"))
-        throw new Error("Couldn't submit image");
-      return response.json();
-    })
+    .then(catchByStatus("couldn't submit image"))
+    .then(parseJson)
     .then(calculateFaceLocations)
     .then(faceBoxes =>
       dispatch({ type: SUBMIT_IMAGE_SUCCESS, payload: faceBoxes })
@@ -171,8 +162,7 @@ export const submitImage = () => (dispatch, getState) => {
         },
         body: JSON.stringify({ id: user.id })
       });
-      if (!String(response.status).startsWith("2"))
-        throw new Error("Couldn't update image count");
+      catchByStatus("couldn't update image count")(response);
       const imageCount = await response.json();
       return dispatch({ type: SET_IMAGE_COUNT, payload: imageCount });
     })
@@ -224,9 +214,8 @@ export const submitProfileUpdate = () => (dispatch, getState) => {
     },
     body: JSON.stringify({ formInput: { name, age, pet } })
   })
-    .then(res => {
-      if (!String(res.status).startsWith("2"))
-        throw new Error("unable to update profile");
+    .then(catchByStatus("unable to update profile"))
+    .then(() => {
       dispatch({ type: UPDATE_PROFILE_SUCCESS, payload: { name, age, pet } });
     })
     .catch(err => dispatch({ type: UPDATE_PROFILE_FAILED, payload: err }));
@@ -237,11 +226,8 @@ export const getUserProfile = userId => dispatch => {
   fetch(BACKEND_URL + "/profile/" + userId, {
     headers: { Authorization: window.sessionStorage.getItem("token") }
   })
-    .then(res => {
-      if (!String(res.status).startsWith("2"))
-        throw new Error("unable to get profile");
-      return res.json();
-    })
+    .then(catchByStatus("unable to get profile"))
+    .then(parseJson)
     .then(user => dispatch({ type: GET_PROFILE_SUCCESS, payload: user }))
     .catch(err => dispatch({ type: GET_PROFILE_FAILED, payload: err }));
 };
@@ -260,11 +246,8 @@ export const authorizeToken = () => dispatch => {
     method: "post",
     headers: { Authorization: token }
   })
-    .then(response => {
-      if (!String(response.status).startsWith("2"))
-        throw new Error("invalid token");
-      return response.json();
-    })
+    .then(catchByStatus("invalid token"))
+    .then(parseJson)
     .then(({ id }) => {
       dispatch({ type: AUTHORIZE_TOKEN_SUCCESS, payload: id });
       dispatch(getUserProfile(id));
