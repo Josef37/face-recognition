@@ -47,11 +47,9 @@ class ProfileIcon extends Component {
           <DropdownItem onClick={this.props.openModal}>
             View Profile
           </DropdownItem>
-          <DropdownItem>
-            <Link to="/signin" onClick={this.props.onSubmitSignout}>
-              Sign Out
-            </Link>
-          </DropdownItem>
+          <Link to="/signin" onClick={this.props.onSubmitSignout}>
+            <DropdownItem>Sign Out</DropdownItem>
+          </Link>
         </DropdownMenu>
       </Dropdown>
     );
