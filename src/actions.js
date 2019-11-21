@@ -105,8 +105,10 @@ export const submitRegister = history => (dispatch, getState) => {
         throw new Error("unable to register");
       return response.json();
     })
-    .then(user => {
-      dispatch({ type: SUBMIT_REGISTER_SUCCESS, payload: user });
+    .then(({ id, token }) => {
+      window.sessionStorage.setItem("token", token);
+      dispatch({ type: SUBMIT_REGISTER_SUCCESS, payload: id });
+      dispatch(getUserProfile(id));
       history.push("/home");
     })
     .catch(err => {
