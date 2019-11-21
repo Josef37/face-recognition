@@ -6,14 +6,14 @@ import thunkMiddleware from "redux-thunk";
 import { createLogger } from "redux-logger";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import { signin, register, app } from "./reducers";
+import { signin, register, app, profile } from "./reducers";
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "tachyons";
 import "./index.css";
 
 const store = createStore(
-  combineReducers({ signin, register, app }),
+  combineReducers({ signin, register, app, profile }),
   applyMiddleware(thunkMiddleware, createLogger())
 );
 

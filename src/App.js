@@ -4,7 +4,9 @@ import {
   setImageUrl,
   submitImage,
   submitSignout,
-  toggleProfileModal
+  openProfileModal,
+  closeProfileModal,
+  authorizeToken
 } from "./actions";
 import {
   BrowserRouter as Router,
@@ -37,6 +39,10 @@ const particlesOptions = {
 };
 
 class App extends React.Component {
+  componentDidMount() {
+    this.props.authorizeToken();
+  }
+
   render() {
     const {
       isSignedIn,
@@ -47,7 +53,8 @@ class App extends React.Component {
       onInputChange,
       onButtonSubmit,
       onSubmitSignout,
-      toggleProfileModal
+      openProfileModal,
+      closeProfileModal
     } = this.props;
     return (
       <Router>
@@ -56,7 +63,7 @@ class App extends React.Component {
           <Navigation
             isSignedIn={isSignedIn}
             onSubmitSignout={onSubmitSignout}
-            toggleModal={toggleProfileModal}
+            openModal={openProfileModal}
           />
           <Switch>
             <Route
@@ -68,7 +75,7 @@ class App extends React.Component {
                   <React.Fragment>
                     {isProfileOpen && (
                       <Modal>
-                        <Profile toggleModal={toggleProfileModal} />
+                        <Profile closeModal={closeProfileModal} />
                       </Modal>
                     )}
                     <Logo />
@@ -82,13 +89,16 @@ class App extends React.Component {
                 )
               }
             ></Route>
-            <Route path="/signin">
-              <Signin />
-            </Route>
+            <Route
+              path="/signin"
+              render={() => (isSignedIn ? <Redirect to="/home" /> : <Signin />)}
+            ></Route>
             <Route path="/register">
               <Register />
             </Route>
-            <Redirect to="/home" />
+            <Route>
+              <Redirect to="/home" />
+            </Route>
           </Switch>
         </div>
       </Router>
@@ -102,6 +112,8 @@ export default connect(
     onInputChange: event => dispatch(setImageUrl(event.target.value)),
     onButtonSubmit: () => dispatch(submitImage()),
     onSubmitSignout: () => dispatch(submitSignout()),
-    toggleProfileModal: () => dispatch(toggleProfileModal())
+    openProfileModal: () => dispatch(openProfileModal()),
+    closeProfileModal: () => dispatch(closeProfileModal()),
+    authorizeToken: () => dispatch(authorizeToken())
   })
 )(App);

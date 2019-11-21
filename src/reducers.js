@@ -15,8 +15,23 @@ import {
   SUBMIT_IMAGE_SUCCESS,
   SUBMIT_IMAGE_FAILED,
   SET_IMAGE_COUNT,
-  SUBMIT_SIGNOUT,
-  TOGGLE_PROFILE_MODAL
+  SUBMIT_SIGNOUT_PENDING,
+  SUBMIT_SIGNOUT_SUCCESS,
+  SUBMIT_SIGNOUT_FAILED,
+  OPEN_PROFILE_MODAL,
+  CLOSE_PROFILE_MODAL,
+  SET_PROFILE_NAME,
+  SET_PROFILE_AGE,
+  SET_PROFILE_PET,
+  UPDATE_PROFILE_PENDING,
+  UPDATE_PROFILE_SUCCESS,
+  UPDATE_PROFILE_FAILED,
+  GET_PROFILE_PENDING,
+  GET_PROFILE_SUCCESS,
+  GET_PROFILE_FAILED,
+  AUTHORIZE_TOKEN_PENDING,
+  AUTHORIZE_TOKEN_SUCCESS,
+  AUTHORIZE_TOKEN_FAILED
 } from "./constants";
 
 const initialStateSignin = {
@@ -81,7 +96,9 @@ const initialStateApp = {
     name: "",
     email: "",
     entries: 0,
-    joined: ""
+    joined: "",
+    age: "",
+    pet: ""
   }
 };
 
@@ -89,12 +106,13 @@ export const app = (state = initialStateApp, action = {}) => {
   switch (action.type) {
     case SUBMIT_REGISTER_SUCCESS:
     case SUBMIT_SIGNIN_SUCCESS:
+    case AUTHORIZE_TOKEN_SUCCESS:
       return {
         ...state,
         isSignedIn: true,
-        user: action.payload
+        user: { ...state.user, id: action.payload }
       };
-    case SUBMIT_SIGNOUT:
+    case SUBMIT_SIGNOUT_SUCCESS:
       return initialStateApp;
     case SET_IMAGE_URL:
       return { ...state, input: action.payload };
@@ -111,8 +129,47 @@ export const app = (state = initialStateApp, action = {}) => {
       return { ...state, isPending: false, isFailed: true };
     case SET_IMAGE_COUNT:
       return { ...state, user: { ...state.user, entries: action.payload } };
-    case TOGGLE_PROFILE_MODAL:
-      return { ...state, isProfileOpen: !state.isProfileOpen };
+    case OPEN_PROFILE_MODAL:
+      return { ...state, isProfileOpen: true };
+    case CLOSE_PROFILE_MODAL:
+      return { ...state, isProfileOpen: false };
+    case UPDATE_PROFILE_SUCCESS:
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload },
+        isProfileOpen: false
+      };
+    case GET_PROFILE_SUCCESS:
+      return { ...state, user: action.payload };
+    default:
+      return state;
+  }
+};
+
+const initialStateProfile = {
+  name: "",
+  age: "",
+  pet: "",
+  isPending: false,
+  error: null
+};
+
+export const profile = (state = initialStateProfile, action = {}) => {
+  switch (action.type) {
+    case OPEN_PROFILE_MODAL:
+      return { ...state, ...action.payload, error: null };
+    case SET_PROFILE_NAME:
+      return { ...state, name: action.payload };
+    case SET_PROFILE_AGE:
+      return { ...state, age: action.payload };
+    case SET_PROFILE_PET:
+      return { ...state, pet: action.payload };
+    case UPDATE_PROFILE_PENDING:
+      return { ...state, isPending: true, error: null };
+    case UPDATE_PROFILE_SUCCESS:
+      return { ...state, isPending: false, error: null };
+    case UPDATE_PROFILE_FAILED:
+      return { ...state, isPending: false, error: action.payload };
     default:
       return state;
   }

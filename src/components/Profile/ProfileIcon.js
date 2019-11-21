@@ -28,6 +28,7 @@ class ProfileIcon extends Component {
           tag="div"
           data-toggle="dropdown"
           aria-expanded={this.state.dropdownOpen}
+          style={{ cursor: "pointer" }}
         >
           <img
             src="https://www.w3schools.com/howto/img_avatar.png"
@@ -43,11 +44,11 @@ class ProfileIcon extends Component {
             left: "auto"
           }}
         >
-          <DropdownItem onClick={() => this.props.toggleModal()}>
+          <DropdownItem onClick={this.props.openModal}>
             View Profile
           </DropdownItem>
           <DropdownItem>
-            <Link to="/signin" onClick={() => this.props.onSubmitSignout()}>
+            <Link to="/signin" onClick={this.props.onSubmitSignout}>
               Sign Out
             </Link>
           </DropdownItem>

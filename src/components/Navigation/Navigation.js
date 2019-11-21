@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import ProfileIcon from "../Profile/ProfileIcon";
 
-const Navigation = ({ isSignedIn, onSubmitSignout, toggleModal }) => {
+const Navigation = ({ isSignedIn, onSubmitSignout, openModal }) => {
   if (isSignedIn) {
     return (
       <nav
@@ -14,7 +14,7 @@ const Navigation = ({ isSignedIn, onSubmitSignout, toggleModal }) => {
       >
         <ProfileIcon
           onSubmitSignout={onSubmitSignout}
-          toggleModal={toggleModal}
+          openModal={openModal}
         />
       </nav>
     );
