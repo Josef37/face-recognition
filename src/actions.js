@@ -39,6 +39,7 @@ import {
   calculateFaceLocations,
   countImageEntries
 } from "./helper/imageHelper";
+import { getAuthHeader, setAuthToken, getAuthToken, removeAuthToken } from "./helper/authHelper"
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -70,7 +71,7 @@ export const submitSignin = history => (dispatch, getState) => {
     .then(catchByStatus("wrong credentials"))
     .then(parseJson)
     .then(({ id, token }) => {
-      window.sessionStorage.setItem("token", token);
+      setAuthToken(token);
       dispatch({ type: SUBMIT_SIGNIN_SUCCESS, payload: id });
       dispatch(getUserProfile(id));
       history.push("/home");
@@ -114,7 +115,7 @@ export const submitRegister = history => (dispatch, getState) => {
     .then(catchByStatus("unable to register"))
     .then(parseJson)
     .then(({ id, token }) => {
-      window.sessionStorage.setItem("token", token);
+      setAuthToken(token);
       dispatch({ type: SUBMIT_REGISTER_SUCCESS, payload: id });
       dispatch(getUserProfile(id));
       history.push("/home");
@@ -130,18 +131,18 @@ export const submitRegister = history => (dispatch, getState) => {
 
 export const submitSignout = () => dispatch => {
   dispatch({ type: SUBMIT_SIGNOUT_PENDING });
-  const token = window.sessionStorage.getItem("token");
+  const token = getAuthToken();
   if (!token) {
     dispatch({ type: SUBMIT_SIGNOUT_SUCCESS });
     return;
   }
   fetch(BACKEND_URL + "/signout", {
     method: "post",
-    headers: { Authorization: token }
+    headers: { Authorization: getAuthHeader() }
   })
     .then(catchByStatus("error signing out"))
     .then(() => {
-      window.sessionStorage.removeItem("token");
+      removeAuthToken();
       dispatch({ type: SUBMIT_SIGNOUT_SUCCESS });
     })
     .catch(err => dispatch({ type: SUBMIT_SIGNOUT_FAILED, payload: err }));
@@ -163,7 +164,7 @@ export const submitImage = () => (dispatch, getState) => {
     method: "post",
     headers: {
       "Content-Type": "application/json",
-      Authorization: window.sessionStorage.getItem("token")
+      Authorization: getAuthHeader()
     },
     body: JSON.stringify({ input: imageUrl })
   })
@@ -210,7 +211,7 @@ export const submitProfileUpdate = () => (dispatch, getState) => {
     method: "post",
     headers: {
       "Content-Type": "application/json",
-      Authorization: window.sessionStorage.getItem("token")
+      Authorization: getAuthHeader()
     },
     body: JSON.stringify({ formInput: { name, age, pet } })
   })
@@ -224,7 +225,7 @@ export const submitProfileUpdate = () => (dispatch, getState) => {
 export const getUserProfile = userId => dispatch => {
   dispatch({ type: GET_PROFILE_PENDING });
   fetch(BACKEND_URL + "/profile/" + userId, {
-    headers: { Authorization: window.sessionStorage.getItem("token") }
+    headers: { Authorization: getAuthHeader() }
   })
     .then(catchByStatus("unable to get profile"))
     .then(parseJson)
@@ -238,7 +239,7 @@ export const getUserProfile = userId => dispatch => {
 
 export const authorizeToken = () => dispatch => {
   dispatch({ type: AUTHORIZE_TOKEN_PENDING });
-  const token = window.sessionStorage.getItem("token");
+  const token = getAuthToken();
   if (!token) {
     dispatch({
       type: AUTHORIZE_TOKEN_FAILED,
@@ -248,7 +249,7 @@ export const authorizeToken = () => dispatch => {
   }
   fetch(BACKEND_URL + "/signin", {
     method: "post",
-    headers: { Authorization: token }
+    headers: { Authorization: getAuthHeader() }
   })
     .then(catchByStatus("invalid token"))
     .then(parseJson)

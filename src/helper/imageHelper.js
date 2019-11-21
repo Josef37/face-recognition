@@ -1,4 +1,5 @@
 import { catchByStatus, parseJson } from "./fetchHelper";
+import { getAuthHeader } from "./authHelper"
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const calculateFaceLocations = data => {
@@ -21,7 +22,7 @@ export const countImageEntries = user => () => {
     method: "put",
     headers: {
       "Content-Type": "application/json",
-      Authorization: window.sessionStorage.getItem("token")
+      Authorization: getAuthHeader()
     },
     body: JSON.stringify({ id: user.id })
   })
