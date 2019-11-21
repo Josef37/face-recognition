@@ -35,8 +35,16 @@ import {
 } from "./constants";
 
 import { catchByStatus, parseJson } from "./helper/fetchHelper";
+import {
+  calculateFaceLocations,
+  countImageEntries
+} from "./helper/imageHelper";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+/* _____________________________________________________________________________________
+  SIGNIN
+*/
 
 export const setSigninEmail = email => ({
   type: SET_SIGNIN_EMAIL,
@@ -71,6 +79,10 @@ export const submitSignin = history => (dispatch, getState) => {
       dispatch({ type: SUBMIT_SIGNIN_FAILED, payload: err });
     });
 };
+
+/* _____________________________________________________________________________________
+  REGISTER
+*/
 
 export const setRegisterEmail = email => ({
   type: SET_REGISTER_EMAIL,
@@ -112,6 +124,10 @@ export const submitRegister = history => (dispatch, getState) => {
     });
 };
 
+/* _____________________________________________________________________________________
+  SIGNOUT
+*/
+
 export const submitSignout = () => dispatch => {
   dispatch({ type: SUBMIT_SIGNOUT_PENDING });
   const token = window.sessionStorage.getItem("token");
@@ -130,6 +146,10 @@ export const submitSignout = () => dispatch => {
     })
     .catch(err => dispatch({ type: SUBMIT_SIGNOUT_FAILED, payload: err }));
 };
+
+/* _____________________________________________________________________________________
+  IMAGE
+*/
 
 export const setImageUrl = url => ({
   type: SET_IMAGE_URL,
@@ -153,36 +173,16 @@ export const submitImage = () => (dispatch, getState) => {
     .then(faceBoxes =>
       dispatch({ type: SUBMIT_IMAGE_SUCCESS, payload: faceBoxes })
     )
-    .then(async () => {
-      const response = await fetch(BACKEND_URL + "/image", {
-        method: "put",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: window.sessionStorage.getItem("token")
-        },
-        body: JSON.stringify({ id: user.id })
-      });
-      catchByStatus("couldn't update image count")(response);
-      const imageCount = await response.json();
-      return dispatch({ type: SET_IMAGE_COUNT, payload: imageCount });
-    })
+    .then(countImageEntries(user))
+    .then(imageCount =>
+      dispatch({ type: SET_IMAGE_COUNT, payload: imageCount })
+    )
     .catch(err => dispatch({ type: SUBMIT_IMAGE_FAILED, payload: err }));
 };
 
-const calculateFaceLocations = data => {
-  const clarifaiFaces = data.outputs[0].data.regions.map(
-    region => region.region_info.bounding_box
-  );
-  const image = document.getElementById("inputImage");
-  const width = Number(image.width);
-  const height = Number(image.height);
-  return clarifaiFaces.map(face => ({
-    leftCol: face.left_col * width,
-    topRow: face.top_row * height,
-    rightCol: width - face.right_col * width,
-    bottomRow: height - face.bottom_row * height
-  }));
-};
+/* _____________________________________________________________________________________
+  PROFILE
+*/
 
 export const closeProfileModal = () => ({ type: CLOSE_PROFILE_MODAL });
 export const openProfileModal = () => (dispatch, getState) => {
@@ -231,6 +231,10 @@ export const getUserProfile = userId => dispatch => {
     .then(user => dispatch({ type: GET_PROFILE_SUCCESS, payload: user }))
     .catch(err => dispatch({ type: GET_PROFILE_FAILED, payload: err }));
 };
+
+/* _____________________________________________________________________________________
+  AUTHORIZATION
+*/
 
 export const authorizeToken = () => dispatch => {
   dispatch({ type: AUTHORIZE_TOKEN_PENDING });
